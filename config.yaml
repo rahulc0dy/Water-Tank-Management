@@ -1,0 +1,47 @@
+# Configuration for Water Tank Management
+hardware:
+  simulate: false           # Set true on Windows dev
+  gpio_mode: BCM            # BCM or BOARD (used on Raspberry Pi)
+  relay_active_high: false  # Many relay boards are active-low
+  pins:
+    level_sensor_pin: 17    # For digital sensor (optional)
+    pump_relay_pin: 27
+
+sensor:
+  type: digital_threshold   # digital_threshold | analog_percent | custom
+  # For analog/custom, provide a script/adapter to call sensor.read_raw()
+  smoothing:
+    method: median_ma       # none | ma | median | median_ma
+    window: 7               # samples
+    period_ms: 1000         # sample period
+  calibration:
+    min_percent: 0          # 0% empty level
+    max_percent: 100        # 100% full level
+
+pump_control:
+  on_threshold_percent: 25      # Pump turns ON when level <= this (after smoothing)
+  off_threshold_percent: 80     # Pump turns OFF when level >= this (hysteresis)
+  min_run_seconds: 180          # Minimum run time once started
+  min_off_seconds: 120          # Minimum off time between starts
+  soft_start_delay_seconds: 2   # Optional delay before engaging relay
+  status_publish_period_s: 10   # How often to print/log status
+
+leak_detection:
+  enabled: true
+  nightly_scan:
+    enabled: true
+    start_hour: 2          # 2am local time
+    duration_minutes: 45
+  manual_override_allowed: true
+  min_detectable_drop_percent: 1.0  # percent drop to consider as leak over window
+
+analytics:
+  tank_capacity_liters: 1000    # Used to estimate liters from percent
+  data_dir: data
+  level_log_csv: levels.csv
+  events_log_csv: events.csv
+  summary_csv: summaries.csv
+
+runtime:
+  loop_period_ms: 1000      # main loop tick
+  graceful_shutdown_seconds: 5
