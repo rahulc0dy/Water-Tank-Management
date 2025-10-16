@@ -49,7 +49,7 @@ MIN_OFF_SECONDS = 120       # Minimum off time between starts
 # Level smoothing
 SMOOTHING_WINDOW = 5        # moving average window (samples)
 LOOP_PERIOD_S = 1.0         # main loop period
-STATUS_EVERY_S = 10         # how often to print status
+STATUS_EVERY_S = 1         # how often to print status
 
 # Tank & analytics
 TANK_CAPACITY_L = 1000.0    # liters; set to your tank size
