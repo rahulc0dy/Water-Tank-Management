@@ -25,7 +25,7 @@ Edit the constants below, then run:  python3 main.py
 GPIO_MODE = GPIO.BCM  # or GPIO.BOARD
 
 # Sensor selection: 'digital' or 'ultrasonic'
-SENSOR_MODE = 'digital'
+SENSOR_MODE = 'ultrasonic'
 
 # Pins
 LEVEL_SENSOR_PIN = 17   # Used when SENSOR_MODE == 'digital'
