@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6ab7c1f3-ba4f-43b6-a223-4179cbe6a6a4" name="Changes" comment="Simplify project">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-    </list>
+    <list default="true" id="6ab7c1f3-ba4f-43b6-a223-4179cbe6a6a4" name="Changes" comment="Ultrasonic" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -78,7 +75,7 @@
       <workItem from="1760245645976" duration="67000" />
       <workItem from="1760343282379" duration="1782000" />
       <workItem from="1760368251696" duration="2624000" />
-      <workItem from="1760600240787" duration="3909000" />
+      <workItem from="1760600240787" duration="4456000" />
     </task>
     <task id="LOCAL-00001" summary="Setup project">
       <option name="closed" value="true" />
@@ -96,7 +93,23 @@
       <option name="project" value="LOCAL" />
       <updated>1760371782701</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Ultrasonic">
+      <option name="closed" value="true" />
+      <created>1760606046420</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1760606046420</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Ultrasonic">
+      <option name="closed" value="true" />
+      <created>1760606168218</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1760606168218</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -105,7 +118,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Setup project" />
     <MESSAGE value="Simplify project" />
-    <option name="LAST_COMMIT_MESSAGE" value="Simplify project" />
+    <MESSAGE value="Ultrasonic" />
+    <option name="LAST_COMMIT_MESSAGE" value="Ultrasonic" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Water_Tank_Management$main.coverage" NAME="main Coverage Results" MODIFIED="1760344274975" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

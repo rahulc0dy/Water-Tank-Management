@@ -99,6 +99,9 @@ def _ultra_ping_cm() -> float:
 
 
 def _read_ultrasonic_percent() -> float:
+    # Cache the last good reading to avoid spurious 0% when all pings timeout
+    if not hasattr(_read_ultrasonic_percent, "_last_pct"):
+        _read_ultrasonic_percent._last_pct = 0.0
     vals = []
     for _ in range(max(1, int(ULTRA_PINGS))):
         d = _ultra_ping_cm()
@@ -106,11 +109,13 @@ def _read_ultrasonic_percent() -> float:
             vals.append(d)
         time.sleep(0.02)
     if not vals:
-        return 0.0 if SENSOR_MODE == 'digital' else 0.0
+        return _read_ultrasonic_percent._last_pct
     # median
     vals.sort()
     d = vals[len(vals)//2]
-    return _map_distance_to_percent(d)
+    pct = _map_distance_to_percent(d)
+    _read_ultrasonic_percent._last_pct = pct
+    return pct
 
 
 def _read_digital_percent() -> float:
@@ -160,9 +165,9 @@ def main():
     else:
         GPIO.setup(LEVEL_SENSOR_PIN, GPIO.IN, pull_up_down=getattr(GPIO, 'PUD_UP', None))
 
-    # Initialize relay output to OFF
-    initial_level = GPIO.HIGH if (RELAY_ACTIVE_HIGH is True and False) else GPIO.LOW
-    GPIO.setup(PUMP_RELAY_PIN, GPIO.OUT, initial=initial_level)
+    # Initialize relay output to OFF according to relay polarity
+    initial_off_level = GPIO.LOW if RELAY_ACTIVE_HIGH else GPIO.HIGH
+    GPIO.setup(PUMP_RELAY_PIN, GPIO.OUT, initial=initial_off_level)
     relay_off()
 
     controller = PumpController(
