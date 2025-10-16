@@ -19,7 +19,8 @@ class PumpController:
         self.hard_off = float(hard_off_percent) if hard_off_percent is not None else None
         self._running = False
         self._last_change = 0.0
-        self._last_off = 0.0
+        # Initialize last_off far in the past so the first start after boot isn't blocked by min_off
+        self._last_off = -1e9
 
     def is_running(self) -> bool:
         return self._running
