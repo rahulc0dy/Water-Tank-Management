@@ -9,9 +9,10 @@ Overview
 Features
 - Automatic pump control: ON at/below threshold, OFF at/above threshold
 - Hysteresis + min run/off timers to avoid chattering
+- Safety hard-off override at a configurable percent to prevent overfill (HARD_OFF_PERCENT)
 - Smoothed level readings (moving average)
 - Leak detection scan (scheduled nightly; no flow meter required)
-- Daily/weekly consumption tracking (liters) and predicted days remaining
+- Daily/weekly consumption tracking (liters) and predicted days remaining (consumption counted only when pump is OFF)
 - Optional ultrasonic sensor support (HC-SR04/JSN-SR04T) or simple digital level input
 - Lightweight CSV logging to data/log.csv
 

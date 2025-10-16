@@ -43,6 +43,7 @@ ULTRA_TIMEOUT_S = 0.03
 # Control thresholds and timers
 ON_THRESHOLD_PERCENT = 25   # Turn pump ON at/below this level
 OFF_THRESHOLD_PERCENT = 80  # Turn pump OFF at/above this level
+HARD_OFF_PERCENT = 99.0     # Safety override: force immediate OFF at/above this level
 MIN_RUN_SECONDS = 180       # Minimum runtime once started
 MIN_OFF_SECONDS = 120       # Minimum off time between starts
 
@@ -175,6 +176,7 @@ def main():
         off_threshold=OFF_THRESHOLD_PERCENT,
         min_run_seconds=MIN_RUN_SECONDS,
         min_off_seconds=MIN_OFF_SECONDS,
+        hard_off_percent=HARD_OFF_PERCENT,
     )
 
     # Smoothing buffer
@@ -257,10 +259,12 @@ def main():
 
             # Consumption tracking (only when level drops; ignores periods when pump raises level)
             if last_level is not None:
-                delta = level_pct - last_level
-                if delta < 0:  # consumption
-                    consumed_l = TANK_CAPACITY_L * (-delta) / 100.0
-                    today_consumed_l += consumed_l
+                # Only count consumption when pump is OFF and not during a leak scan
+                if not controller.is_running() and not scan_active:
+                    delta = level_pct - last_level
+                    if delta < 0:  # consumption
+                        consumed_l = TANK_CAPACITY_L * (-delta) / 100.0
+                        today_consumed_l += consumed_l
             last_level = level_pct
 
             # Status and logging
