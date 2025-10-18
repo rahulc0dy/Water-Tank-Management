@@ -1,4 +1,4 @@
-import RPI.GPIO as _GPIO
+import RPi.GPIO as _GPIO
 
 
 # ---------- Relay control ----------
