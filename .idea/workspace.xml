@@ -5,7 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6ab7c1f3-ba4f-43b6-a223-4179cbe6a6a4" name="Changes" comment="restructure files">
-      <change beforePath="$PROJECT_DIR$/sensors.py" beforeDir="false" afterPath="$PROJECT_DIR$/sensors.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/model_training.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/actuators.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/control_logic.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_collection.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ml_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/model_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sensors.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -16,6 +25,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Python Script" />
+        <option value="Jupyter Notebook" />
       </list>
     </option>
   </component>
@@ -93,7 +103,8 @@
       <workItem from="1760600240787" duration="6473000" />
       <workItem from="1760609474634" duration="13000" />
       <workItem from="1760692309678" duration="3940000" />
-      <workItem from="1760776763553" duration="392000" />
+      <workItem from="1760776763553" duration="2064000" />
+      <workItem from="1760799902739" duration="1712000" />
     </task>
     <task id="LOCAL-00001" summary="Setup project">
       <option name="closed" value="true" />
@@ -175,7 +186,31 @@
       <option name="project" value="LOCAL" />
       <updated>1760776991189</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="restructure files">
+      <option name="closed" value="true" />
+      <created>1760777185796</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1760777185796</updated>
+    </task>
+    <task id="LOCAL-00012" summary="restructure files">
+      <option name="closed" value="true" />
+      <created>1760777284217</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1760777284217</updated>
+    </task>
+    <task id="LOCAL-00013" summary="restructure files">
+      <option name="closed" value="true" />
+      <created>1760777475271</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1760777475271</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
