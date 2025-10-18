@@ -34,8 +34,15 @@ def read_ultrasonic_sensor(trig_pin, echo_pin):
 
 
 if __name__ == "__main__":
+    _GPIO.setwarnings(False)
     _GPIO.setmode(_GPIO.BCM)
-    _GPIO.setup(ULTRASONIC_TRIG_PIN, _GPIO.OUT)
-    _GPIO.setup(ULTRASONIC_ECHO_PIN, _GPIO.IN)
-    distance_read = read_ultrasonic_sensor(ULTRASONIC_TRIG_PIN,ULTRASONIC_ECHO_PIN)
-    print("Distance:", str(distance_read), "cm")
+    # Workaround for RPi.GPIO (lgpio backend) bug requiring an initial value on OUT setup
+    _GPIO.setup(ULTRASONIC_TRIG_PIN, _GPIO.OUT, initial=_GPIO.LOW)
+    # Use a defined pull state to avoid floating echo line
+    _GPIO.setup(ULTRASONIC_ECHO_PIN, _GPIO.IN, pull_up_down=_GPIO.PUD_DOWN)
+    try:
+        time.sleep(0.05)  # allow lines to settle
+        distance_read = read_ultrasonic_sensor(ULTRASONIC_TRIG_PIN, ULTRASONIC_ECHO_PIN)
+        print("Distance:", str(distance_read), "cm")
+    finally:
+        _GPIO.cleanup()
