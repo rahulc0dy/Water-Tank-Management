@@ -7,6 +7,9 @@ from datetime import datetime, date, timedelta
 
 import RPi.GPIO as _GPIO
 
+from config import ULTRASONIC_TRIG_PIN, ULTRASONIC_ECHO_PIN
+
+
 # ---------- Sensor reading ----------
 
 def read_ultrasonic_sensor(trig_pin, echo_pin):
@@ -31,5 +34,5 @@ def read_ultrasonic_sensor(trig_pin, echo_pin):
 
 
 if __name__ == "__main__":
-    distance_read = read_ultrasonic_sensor()
+    distance_read = read_ultrasonic_sensor(ULTRASONIC_TRIG_PIN,ULTRASONIC_ECHO_PIN)
     print("Distance:", str(distance_read), "cm")
