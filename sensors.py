@@ -34,5 +34,8 @@ def read_ultrasonic_sensor(trig_pin, echo_pin):
 
 
 if __name__ == "__main__":
+    _GPIO.setmode(_GPIO.BCM)
+    _GPIO.setup(ULTRASONIC_TRIG_PIN, _GPIO.OUT)
+    _GPIO.setup(ULTRASONIC_ECHO_PIN, _GPIO.IN)
     distance_read = read_ultrasonic_sensor(ULTRASONIC_TRIG_PIN,ULTRASONIC_ECHO_PIN)
     print("Distance:", str(distance_read), "cm")
