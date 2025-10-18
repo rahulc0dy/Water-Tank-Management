@@ -1,6 +1,6 @@
 import time
 
-import RPI.GPIO as _GPIO
+import RPi.GPIO as _GPIO
 
 from config import *
 from data_collection import append_row
