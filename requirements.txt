@@ -1,1 +1,6 @@
-RPi.GPIO>=0.7
+pandas
+scikit-learn
+seaborn
+matplotlib
+numpy
+joblib
