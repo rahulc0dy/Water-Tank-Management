@@ -30,7 +30,9 @@ def normal_mode(smoothing, stop):
         pump_on = bool(relay_state == _GPIO.HIGH) if RELAY_ACTIVE_HIGH else bool(relay_state == _GPIO.LOW)
 
         # Log data
-        append_row(smoothed_pct, pump_on)
+        # Estimate current water volume from level percentage
+        water_volume_l = (smoothed_pct / 100.0) * TANK_CAPACITY_L
+        append_row(smoothed_pct, pump_on, water_volume_l)
 
         # wait until next loop
         time.sleep(LOOP_PERIOD_S)

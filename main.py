@@ -50,6 +50,8 @@ def main():
         relay_off(PUMP_RELAY_PIN, RELAY_ACTIVE_HIGH)
         GPIO.cleanup()
 
+    return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())
