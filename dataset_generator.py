@@ -25,23 +25,40 @@ EXTERNAL_FILL_PROBABILITY = 0.0005  # Very rare event for external tanker fill
 
 
 def get_water_usage(hour, is_weekend):
-    """Simulates water usage based on the time of day and day of the week."""
-    if is_weekend:
-        # Weekend usage is more spread out
-        if 8 <= hour <= 22:
-            base_usage = np.random.uniform(0.5, 2.0)
-        else:
-            base_usage = np.random.uniform(0.05, 0.2)
-    else:
-        # Weekday usage has morning and evening peaks
-        if 6 <= hour <= 9 or 18 <= hour <= 22:
-            base_usage = np.random.uniform(1.0, 3.5)
-        elif 9 < hour < 18:
-            base_usage = np.random.uniform(0.5, 1.5)
-        else:
-            base_usage = np.random.uniform(0.05, 0.2)
+    """Simulates more realistic water usage based on the time of day and day of the week."""
 
-    return base_usage * np.random.uniform(0.8, 1.2)  # Add some randomness
+    # --- Night Time: Very low to zero usage ---
+    if 0 <= hour <= 5:
+        # Most of the time, there is zero usage at night.
+        # Add a small chance for a quick, small usage event (e.g., toilet flush).
+        if random.random() < 0.05:  # 5% chance of a small usage event
+            return np.random.uniform(0.5, 1.0)
+        else:
+            return 0.0  # Absolutely no usage
+
+    # --- Day Time ---
+    if is_weekend:
+        # Weekend: Usage starts later and is more spread out
+        if 8 <= hour <= 11:  # Morning activity
+            base_usage = np.random.uniform(0.8, 2.5)
+        elif 12 <= hour <= 20:  # Consistent daytime/evening usage
+            base_usage = np.random.uniform(0.6, 2.2)
+        elif 21 <= hour <= 23:  # Tapering off
+            base_usage = np.random.uniform(0.2, 1.0)
+        else:  # Early morning before activity starts (6-7 AM)
+            base_usage = np.random.uniform(0.1, 0.5)
+    else:
+        # Weekday: Distinct morning and evening peaks
+        if 6 <= hour <= 9:  # Morning rush
+            base_usage = np.random.uniform(1.5, 4.0)
+        elif 10 <= hour <= 17:  # Lower daytime usage (work/school hours)
+            base_usage = np.random.uniform(0.3, 1.2)
+        elif 18 <= hour <= 22:  # Evening peak (cooking, cleaning)
+            base_usage = np.random.uniform(1.2, 3.5)
+        else:  # Late evening
+            base_usage = np.random.uniform(0.1, 0.5)
+
+    return base_usage * np.random.uniform(0.8, 1.2)  # Add some natural randomness
 
 
 def generate_dataset(simulation_duration_days):
@@ -79,7 +96,7 @@ def generate_dataset(simulation_duration_days):
             # If in the middle range, keep the current state
             pump_signal_target = pump_state
 
-            # Target 2: Leak Detection Activation Logic
+        # Target 2: Leak Detection Activation Logic
         is_leak_window = LEAK_DETECTION_START_HOUR <= time_now.hour < LEAK_DETECTION_END_HOUR
         leak_detection_target = 1 if is_leak_window else 0
 
