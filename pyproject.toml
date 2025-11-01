@@ -1,0 +1,23 @@
+[project]
+name = "water-tank-management"
+version = "0.1.0"
+description = "Tooling and automation for the Water Tank Management system"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi==0.111.0",
+    "uvicorn[standard]==0.30.0",
+    "pyserial==3.5",
+    "pandas",
+    "scikit-learn",
+    "seaborn",
+    "matplotlib",
+    "numpy",
+    "joblib",
+]
+
+[build-system]
+requires = ["setuptools>=67", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv.workspace]
+members = ["backend"]

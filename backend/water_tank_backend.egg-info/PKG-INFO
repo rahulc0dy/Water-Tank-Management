@@ -1,0 +1,8 @@
+Metadata-Version: 2.4
+Name: water-tank-backend
+Version: 0.1.0
+Summary: FastAPI backend for the Water Tank Management project
+Requires-Python: >=3.10
+Requires-Dist: fastapi==0.111.0
+Requires-Dist: uvicorn[standard]==0.30.0
+Requires-Dist: pyserial==3.5

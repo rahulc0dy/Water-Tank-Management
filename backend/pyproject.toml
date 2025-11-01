@@ -1,0 +1,14 @@
+[project]
+name = "water-tank-backend"
+version = "0.1.0"
+description = "FastAPI backend for the Water Tank Management project"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi==0.111.0",
+    "uvicorn[standard]==0.30.0",
+    "pyserial==3.5",
+]
+
+[build-system]
+requires = ["setuptools>=67", "wheel"]
+build-backend = "setuptools.build_meta"

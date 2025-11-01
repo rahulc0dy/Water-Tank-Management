@@ -2,12 +2,15 @@ import sys
 import os
 import time
 import argparse
+from datetime import datetime
 from pathlib import Path
 
 import serial
 import joblib
 import numpy as np
 import pandas as pd
+
+from backend.app.storage import default_store
 
 MODEL_FILE = Path('model') / 'aqua_man_model.pkl'
 SCALER_FILE = Path('model') / 'aqua_man_scaler.pkl'
@@ -143,6 +146,7 @@ def main():
     args = parser.parse_args()
 
     model, scaler = load_model_and_scaler()
+    telemetry_store = default_store()
     ser = open_serial(args.port, args.baud, timeout=1.0)
 
     print('Beginning operation. Press Ctrl+C to exit.')
@@ -169,6 +173,18 @@ def main():
                             ser.write(cmd.encode('utf-8'))
                         except Exception as we:
                             print(f"Warning: Failed to write to serial: {we}")
+                    try:
+                        telemetry_store.append(
+                            {
+                                "timestamp": datetime.utcnow().isoformat(),
+                                "water_level_percent": level,
+                                "pump_state": pump_state,
+                                "leak_detected": False,
+                                "raw_payload": line,
+                            }
+                        )
+                    except Exception as store_exc:
+                        print(f"Warning: Failed to persist telemetry: {store_exc}")
                     now = time.strftime('%H:%M:%S')
                     print(f"{now} level%: {level:.2f}, pump_state: {pump_state}, cmd: {cmd}")
                 else:
