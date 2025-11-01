@@ -55,6 +55,19 @@ export async function login(
   return handleJson(response);
 }
 
+export async function register(
+  creds: BasicCreds
+): Promise<{ message: string; username: string }> {
+  const response = await fetch(`${API_BASE}/auth/register`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(creds),
+  });
+  return handleJson(response);
+}
+
 export interface TelemetrySample {
   timestamp: string;
   water_level_percent: number;

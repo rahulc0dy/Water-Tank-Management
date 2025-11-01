@@ -142,4 +142,4 @@ def ensure_default_user() -> Optional[str]:
     if get_user(username) is None:
         create_user(username, password)
     return _normalise_username(username)
-```}
+    

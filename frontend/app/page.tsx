@@ -14,9 +14,10 @@ import {
   loadCredentials,
   login,
   persistCredentials,
+  register,
 } from "../lib/api";
 
-const REFRESH_INTERVAL_MS = 10_000;
+const REFRESH_INTERVAL_MS = 5_000;
 
 interface DashboardState {
   metrics: DashboardMetrics | null;
@@ -33,6 +34,7 @@ export default function Home() {
   const [state, setState] = useState<DashboardState>(initialState);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
 
   useEffect(() => {
     setCreds(loadCredentials());
@@ -43,6 +45,7 @@ export default function Home() {
     setCreds(null);
     setState(initialState);
     setError(null);
+    setInfo(null);
   }, []);
 
   const refresh = useCallback(
@@ -83,16 +86,24 @@ export default function Home() {
     return () => clearInterval(timer);
   }, [creds, refresh]);
 
+  const performLogin = useCallback(
+    async (username: string, password: string) => {
+      await login({ username, password });
+      const nextCreds = { username, password };
+      persistCredentials(nextCreds);
+      setCreds(nextCreds);
+      await refresh(nextCreds, false);
+    },
+    [refresh]
+  );
+
   const handleLogin = useCallback(
     async (username: string, password: string) => {
       setLoading(true);
       setError(null);
+      setInfo(null);
       try {
-        await login({ username, password });
-        const nextCreds = { username, password };
-        persistCredentials(nextCreds);
-        setCreds(nextCreds);
-        await refresh(nextCreds, false);
+        await performLogin(username, password);
       } catch (err) {
         if (err instanceof Error) {
           setError(err.message);
@@ -103,18 +114,43 @@ export default function Home() {
         setLoading(false);
       }
     },
-    [refresh]
+    [performLogin]
+  );
+
+  const handleRegister = useCallback(
+    async (username: string, password: string) => {
+      setLoading(true);
+      setError(null);
+      setInfo(null);
+      try {
+        await register({ username, password });
+        setInfo("Account created. Signing you in...");
+        await performLogin(username, password);
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Registration failed");
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+    [performLogin]
   );
 
   const memoisedError = useMemo(() => error, [error]);
+  const memoisedInfo = useMemo(() => info, [info]);
 
   if (!creds) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-100 px-4">
         <LoginCard
           onSubmit={handleLogin}
+          onRegister={handleRegister}
           loading={loading}
           error={memoisedError}
+          info={memoisedInfo}
         />
       </div>
     );

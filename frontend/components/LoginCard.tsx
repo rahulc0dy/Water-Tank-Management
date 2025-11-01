@@ -4,24 +4,51 @@ import { FormEvent, useState } from "react";
 
 export interface LoginCardProps {
   onSubmit: (username: string, password: string) => Promise<void> | void;
+  onRegister?: (username: string, password: string) => Promise<void> | void;
   loading?: boolean;
   error?: string | null;
+  info?: string | null;
 }
 
 export function LoginCard({
   onSubmit,
+  onRegister,
   loading = false,
   error,
+  info,
 }: LoginCardProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [mode, setMode] = useState<"login" | "register">("login");
+
+  const isRegister = mode === "register";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!username || !password) {
       return;
     }
-    await onSubmit(username, password);
+    if (isRegister && onRegister) {
+      await onRegister(username, password);
+    } else {
+      await onSubmit(username, password);
+    }
+  }
+
+  const passwordAutocomplete = isRegister ? "new-password" : "current-password";
+  const primaryLabel = loading
+    ? isRegister
+      ? "Creating account..."
+      : "Signing in..."
+    : isRegister
+    ? "Create account"
+    : "Sign in";
+  const toggleLabel = isRegister
+    ? "Already have an account? Sign in"
+    : "Need an account? Create one";
+
+  function toggleMode() {
+    setMode((prev) => (prev === "login" ? "register" : "login"));
   }
 
   return (
@@ -54,7 +81,7 @@ export function LoginCard({
           <input
             id="password"
             type="password"
-            autoComplete="current-password"
+            autoComplete={passwordAutocomplete}
             className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
@@ -65,13 +92,24 @@ export function LoginCard({
             {error}
           </p>
         ) : null}
+        {info ? (
+          <p className="text-sm text-green-600" role="status">
+            {info}
+          </p>
+        ) : null}
         <button
           type="submit"
           className="flex w-full items-center justify-center rounded-lg bg-blue-600 px-3 py-2 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-400"
           disabled={loading}>
-          {loading ? "Signing in..." : "Sign in"}
+          {primaryLabel}
         </button>
       </form>
+      <button
+        type="button"
+        onClick={toggleMode}
+        className="mt-4 w-full text-sm font-medium text-blue-600 transition hover:text-blue-700">
+        {toggleLabel}
+      </button>
       <p className="mt-6 text-center text-xs text-zinc-500">
         Credentials are sent with HTTP Basic auth to your Raspberry Pi backend.
       </p>

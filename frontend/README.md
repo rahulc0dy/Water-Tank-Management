@@ -18,7 +18,7 @@ Create at least one user via the backend (`/auth/register`) or environment varia
 
 ## Features
 
-- HTTP Basic login screen wired to the backend `/auth/login` endpoint.
+- HTTP Basic login screen with inline account creation via `/auth/register`.
 - Auto-refreshing dashboard with tank level, pump status, leak count, and usage metrics.
 - Usage per-hour/day breakdowns and a recent telemetry table.
 - Sparkline water-level trend and manual refresh / logout controls.
