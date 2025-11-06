@@ -7,12 +7,14 @@
 #define RELAY_PIN 5
 #define BUZZER_PIN 6
 
-#define MIN_DISTANCE 15
-#define MAX_DISTANCE 140
+#define MIN_DISTANCE 4
+#define MAX_DISTANCE 12
 
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
 
 int prev_pump_state = 0;
+
+const bool RELAY_ACTIVE_HIGH = true;
 
 void setup() {
   Serial.begin(9600);
@@ -20,7 +22,7 @@ void setup() {
   pinMode(RELAY_PIN, OUTPUT);
 	pinMode(BUZZER_PIN, OUTPUT);
 
-	digitalWrite(RELAY_PIN, LOW);
+	digitalWrite(RELAY_PIN, RELAY_ACTIVE_HIGH ? LOW : HIGH);
 
 }
 
@@ -52,16 +54,16 @@ void loop() {
 
 void controlPump(char cmd) {
 	if (cmd == '0') { 
-		// OFF
-    digitalWrite(RELAY_PIN, LOW);
+	// OFF
+    digitalWrite(RELAY_PIN, RELAY_ACTIVE_HIGH ? LOW : HIGH);
 		
-		prev_pump_state = 0;
+	prev_pump_state = 0;
   } else if (cmd == '1') { 
-		// ON
-    digitalWrite(RELAY_PIN, HIGH);
-		// tone(BUZZER_PIN, 2000, 1000);
-		digitalWrite(LED_PIN, HIGH);
-		prev_pump_state = 1;
+	// ON
+    digitalWrite(RELAY_PIN, RELAY_ACTIVE_HIGH ? HIGH : LOW);
+	// tone(BUZZER_PIN, 2000, 1000);
+	digitalWrite(LED_PIN, HIGH);
+	prev_pump_state = 1;
   }
 }
 

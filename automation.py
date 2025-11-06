@@ -136,18 +136,36 @@ def parse_arduino_line(line: str):
     pump_state = int(float(parts[1]))
     return level, pump_state
 
+def no_model_command(
+    current_level: float,
+    current_pump_state: int,
+    previous_command = None,
+) -> str:
+    if current_level <= 6.0:
+        return "1"
+    if current_level >= 99.0:
+        return "0"
+    if previous_command is not None:
+        return previous_command
+    return "1" if current_pump_state else "0"
 
 def main():
     parser = argparse.ArgumentParser(description='AquaMan automation: model-driven pump control over Arduino serial')
-    parser.add_argument('--port', default=os.environ.get('AQUA_SERIAL_PORT', 'COM3'), help='Serial port (e.g., COM3 or /dev/ttyACM0)')
+    parser.add_argument('--port', default=os.environ.get('AQUA_SERIAL_PORT', '/dev/ttyUSB0'), help='Serial port (e.g., COM3 or /dev/ttyACM0)')
     parser.add_argument('--baud', default=int(os.environ.get('AQUA_SERIAL_BAUD', '9600')), type=int, help='Baud rate (default 9600)')
-    parser.add_argument('--interval', default=0.2, type=float, help='Loop sleep interval in seconds')
+    parser.add_argument('--interval', default=0.1, type=float, help='Loop sleep interval in seconds')
     parser.add_argument('--dry-run', action='store_true', help='Do not send commands to Arduino, only print decisions')
+    parser.add_argument('--no-model', action='store_true', help='Use simple control; skip ML model')
     args = parser.parse_args()
 
-    model, scaler = load_model_and_scaler()
+    if args.no_model:
+        print("Running in NM mode: Thresholds (6%, 99%)")
+    else:
+        model, scaler = load_model_and_scaler()
+
     telemetry_store = default_store()
     ser = open_serial(args.port, args.baud, timeout=1.0)
+    last_command = None
 
     print('Beginning operation. Press Ctrl+C to exit.')
     try:
@@ -165,8 +183,12 @@ def main():
                         continue
 
                     df_row = build_feature_row(level, pump_state)
-                    X_in = prepare_X(df_row, model, scaler)
-                    cmd = predict_command(model, X_in)
+                    if args.no_model:
+                        cmd = no_model_command(level, pump_state, last_command)
+                    else:
+                        X_in = prepare_X(df_row, model, scaler)
+                        cmd = predict_command(model, X_in)
+                    last_command = cmd
 
                     if not args.dry_run:
                         try:
