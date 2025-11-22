@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 
 from backend.database import get_db
+from backend.models import Telemetry
 
 MODEL_FILE = Path('model') / 'aqua_man_model.pkl'
 SCALER_FILE = Path('model') / 'aqua_man_scaler.pkl'
@@ -163,7 +164,9 @@ def main():
     else:
         model, scaler = load_model_and_scaler()
 
-    telemetry_store = get_db()
+    # Initialize database session
+    db_gen = get_db()
+    db = next(db_gen)
     ser = open_serial(args.port, args.baud, timeout=1.0)
     last_command = None
 
@@ -196,17 +199,16 @@ def main():
                         except Exception as we:
                             print(f"Warning: Failed to write to serial: {we}")
                     try:
-                        telemetry_store.send(
-                            {
-                                "timestamp": datetime.utcnow().isoformat(),
-                                "water_level_percent": level,
-                                "pump_state": pump_state,
-                                "leak_detected": False,
-                                "raw_payload": line,
-                            }
+                        telemetry_entry = Telemetry(
+                            timestamp=datetime.utcnow(),
+                            water_level_percent=level,
+                            pump_state=pump_state
                         )
+                        db.add(telemetry_entry)
+                        db.commit()
                     except Exception as store_exc:
                         print(f"Warning: Failed to persist telemetry: {store_exc}")
+                        db.rollback()
                     now = time.strftime('%H:%M:%S')
                     print(f"{now} level%: {level:.2f}, pump_state: {pump_state}, cmd: {cmd}")
                 else:
@@ -219,6 +221,13 @@ def main():
     finally:
         try:
             ser.close()
+        except Exception:
+            pass
+        try:
+            # Close the database generator to trigger cleanup
+            next(db_gen)
+        except StopIteration:
+            pass
         except Exception:
             pass
 
