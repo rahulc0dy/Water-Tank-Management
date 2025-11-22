@@ -45,7 +45,7 @@ async function handleJson<T>(response: Response): Promise<T> {
 export async function login(
   creds: BasicCreds
 ): Promise<{ username: string; last_login: string | null }> {
-  const response = await fetch(`${API_BASE}/auth/login`, {
+  const response = await fetch(`${API_BASE}/users/login`, {
     method: "POST",
     headers: {
       "content-type": "application/json",

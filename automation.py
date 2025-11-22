@@ -10,7 +10,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from backend.app.storage import default_store
+from backend.database import default_store
 
 MODEL_FILE = Path('model') / 'aqua_man_model.pkl'
 SCALER_FILE = Path('model') / 'aqua_man_scaler.pkl'
