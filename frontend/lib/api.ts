@@ -58,7 +58,7 @@ export async function login(
 export async function register(
   creds: BasicCreds
 ): Promise<{ message: string; username: string }> {
-  const response = await fetch(`${API_BASE}/auth/register`, {
+  const response = await fetch(`${API_BASE}/users/register`, {
     method: "POST",
     headers: {
       "content-type": "application/json",

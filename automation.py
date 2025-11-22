@@ -10,7 +10,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from backend.database import default_store
+from backend.database import get_db
 
 MODEL_FILE = Path('model') / 'aqua_man_model.pkl'
 SCALER_FILE = Path('model') / 'aqua_man_scaler.pkl'
@@ -163,7 +163,7 @@ def main():
     else:
         model, scaler = load_model_and_scaler()
 
-    telemetry_store = default_store()
+    telemetry_store = get_db()
     ser = open_serial(args.port, args.baud, timeout=1.0)
     last_command = None
 
@@ -196,7 +196,7 @@ def main():
                         except Exception as we:
                             print(f"Warning: Failed to write to serial: {we}")
                     try:
-                        telemetry_store.append(
+                        telemetry_store.send(
                             {
                                 "timestamp": datetime.utcnow().isoformat(),
                                 "water_level_percent": level,
