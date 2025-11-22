@@ -60,11 +60,11 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 @app.post("/users/login")
-def login(user_login: schemas.UserLogin, db: Session = Depends(get_db)):
+def login(user_login: schemas.UserCreate, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.username == user_login.username).first()
-    if not user or user.password != user_login.password:
+    if not user or not verify_password(user_login.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    return {"role": user.role}
+    return {"username": user.username, "last_login": None}
 
 @app.get("/users/me", response_model=schemas.User)
 def read_users_me(current_user: models.User = Depends(get_current_user)):
