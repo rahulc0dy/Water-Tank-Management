@@ -89,46 +89,112 @@ def get_telemetry_history(skip: int = 0, limit: int = 100, db: Session = Depends
 def get_dashboard_metrics(db: Session = Depends(get_db), current_user: models.User = Depends(get_current_user)):
     """Provides aggregated data for the dashboard UI."""
     
+    LITERS_PER_PERCENT = 10.0 # 1000L tank / 100%
+
     # Get latest reading
     latest = db.query(models.Telemetry).order_by(models.Telemetry.timestamp.desc()).first()
+    
+    # Get all readings for calculations (optimize this in production)
+    all_readings = db.query(models.Telemetry).order_by(models.Telemetry.timestamp.asc()).all()
+    
     if not latest:
+        # Return empty structure
+        empty_usage = schemas.DashboardUsage(
+            last_24h=schemas.DashboardUsageSlice(percent=0, liters=0),
+            all_time=schemas.DashboardUsageSlice(percent=0, liters=0),
+            per_hour=[],
+            per_day=[]
+        )
         return schemas.DashboardMetrics(
-            current_level=0, current_pump_state=0, usage_past_24h_liters=0, all_time_usage_liters=0, hourly_avg_usage={}
+            latest=None,
+            sample_count=0,
+            usage=empty_usage,
+            water_levels=[],
+            pump_state_summary=schemas.DashboardPumpStateSummary(on=0, off=0),
+            leak_events=0
         )
 
-    # Calculate usage (assuming 1% drop = 10 liters for a 1000L tank)
-    # This is a simplification; real usage depends on tank geometry.
-    LITERS_PER_PERCENT = 10 
+    # Helper to calculate usage
+    def calculate_usage(readings):
+        usage_percent = 0.0
+        for r_prev, r_curr in zip(readings, readings[1:]):
+            # Only count drops when pump is OFF
+            if r_curr.pump_state == 0 and r_prev.water_level_percent > r_curr.water_level_percent:
+                usage_percent += (r_prev.water_level_percent - r_curr.water_level_percent)
+        return usage_percent
 
     # 24-hour usage
     day_ago = datetime.utcnow() - timedelta(days=1)
-    readings_24h = db.query(models.Telemetry).filter(models.Telemetry.timestamp >= day_ago).order_by(models.Telemetry.timestamp.asc()).all()
-    usage_24h = sum(max(0, r_prev.water_level_percent - r_curr.water_level_percent) * LITERS_PER_PERCENT 
-                    for r_prev, r_curr in zip(readings_24h, readings_24h[1:]) if r_curr.pump_state == 0)
-
-    # All-time usage
-    all_readings = db.query(models.Telemetry).order_by(models.Telemetry.timestamp.asc()).all()
-    all_time_usage = sum(max(0, r_prev.water_level_percent - r_curr.water_level_percent) * LITERS_PER_PERCENT 
-                         for r_prev, r_curr in zip(all_readings, all_readings[1:]) if r_curr.pump_state == 0)
-
-    # Hourly average usage
-    hourly_usage = {h: 0.0 for h in range(24)}
-    hourly_counts = {h: 0 for h in range(24)}
-    # This is a simplified approach. A real implementation might use more advanced SQL grouping.
-    for r_prev, r_curr in zip(all_readings, all_readings[1:]):
-        if r_curr.pump_state == 0:
-            usage = max(0, r_prev.water_level_percent - r_curr.water_level_percent) * LITERS_PER_PERCENT
-            if usage > 0:
-                hour = r_curr.timestamp.hour
-                hourly_usage[hour] += usage
-                hourly_counts[hour] += 1
+    readings_24h = [r for r in all_readings if r.timestamp >= day_ago]
+    usage_24h_percent = calculate_usage(readings_24h)
     
-    hourly_avg = {h: (hourly_usage[h] / hourly_counts[h]) if hourly_counts[h] > 0 else 0 for h in range(24)}
+    # All-time usage
+    usage_all_time_percent = calculate_usage(all_readings)
+
+    # Per hour usage (last 24h)
+    usage_by_hour = {}
+    for r_prev, r_curr in zip(readings_24h, readings_24h[1:]):
+        if r_curr.pump_state == 0 and r_prev.water_level_percent > r_curr.water_level_percent:
+            hour = r_curr.timestamp.hour
+            diff = r_prev.water_level_percent - r_curr.water_level_percent
+            usage_by_hour[hour] = usage_by_hour.get(hour, 0.0) + diff
+            
+    per_hour_usage = [
+        schemas.UsagePerHour(hour=h, percent=p, liters=p * LITERS_PER_PERCENT)
+        for h, p in usage_by_hour.items()
+    ]
+
+    # Per day usage (all time)
+    usage_by_day = {}
+    for r_prev, r_curr in zip(all_readings, all_readings[1:]):
+        if r_curr.pump_state == 0 and r_prev.water_level_percent > r_curr.water_level_percent:
+            date_str = r_curr.timestamp.strftime('%Y-%m-%d')
+            diff = r_prev.water_level_percent - r_curr.water_level_percent
+            usage_by_day[date_str] = usage_by_day.get(date_str, 0.0) + diff
+
+    per_day_usage = [
+        schemas.UsagePerDay(date=d, percent=p, liters=p * LITERS_PER_PERCENT)
+        for d, p in usage_by_day.items()
+    ]
+    
+    # Pump state summary
+    pump_on_count = sum(1 for r in all_readings if r.pump_state == 1)
+    pump_off_count = sum(1 for r in all_readings if r.pump_state == 0)
+
+    # Water levels (last 24h for graph)
+    water_levels = [
+        schemas.DashboardWaterLevel(
+            timestamp=r.timestamp,
+            water_level_percent=r.water_level_percent,
+            water_level_liters=r.water_level_percent * LITERS_PER_PERCENT
+        ) for r in readings_24h
+    ]
 
     return schemas.DashboardMetrics(
-        current_level=latest.water_level_percent,
-        current_pump_state=latest.pump_state,
-        usage_past_24h_liters=usage_24h,
-        all_time_usage_liters=all_time_usage,
-        hourly_avg_usage=hourly_avg,
+        latest=schemas.DashboardLatest(
+            timestamp=latest.timestamp,
+            water_level_percent=latest.water_level_percent,
+            pump_state=latest.pump_state,
+            leak_detected=False, # Placeholder
+            water_level_liters=latest.water_level_percent * LITERS_PER_PERCENT
+        ),
+        sample_count=len(all_readings),
+        usage=schemas.DashboardUsage(
+            last_24h=schemas.DashboardUsageSlice(
+                percent=usage_24h_percent, 
+                liters=usage_24h_percent * LITERS_PER_PERCENT
+            ),
+            all_time=schemas.DashboardUsageSlice(
+                percent=usage_all_time_percent, 
+                liters=usage_all_time_percent * LITERS_PER_PERCENT
+            ),
+            per_hour=per_hour_usage,
+            per_day=per_day_usage
+        ),
+        water_levels=water_levels,
+        pump_state_summary=schemas.DashboardPumpStateSummary(
+            on=pump_on_count,
+            off=pump_off_count
+        ),
+        leak_events=0
     )

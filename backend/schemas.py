@@ -1,3 +1,4 @@
+from typing import List, Optional, Dict
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -27,9 +28,42 @@ class User(UserBase):
     class Config:
         from_attributes = True
 
+class DashboardUsageSlice(BaseModel):
+    percent: float
+    liters: Optional[float] = None
+
+class UsagePerHour(DashboardUsageSlice):
+    hour: int
+
+class UsagePerDay(DashboardUsageSlice):
+    date: str
+
+class DashboardUsage(BaseModel):
+    last_24h: DashboardUsageSlice
+    all_time: DashboardUsageSlice
+    per_hour: List[UsagePerHour]
+    per_day: List[UsagePerDay]
+
+class DashboardLatest(BaseModel):
+    timestamp: datetime
+    water_level_percent: float
+    pump_state: int
+    leak_detected: bool
+    water_level_liters: Optional[float] = None
+
+class DashboardPumpStateSummary(BaseModel):
+    on: int
+    off: int
+
+class DashboardWaterLevel(BaseModel):
+    timestamp: datetime
+    water_level_percent: float
+    water_level_liters: Optional[float] = None
+
 class DashboardMetrics(BaseModel):
-    current_level: float
-    current_pump_state: int
-    usage_past_24h_liters: float
-    all_time_usage_liters: float
-    hourly_avg_usage: dict[int, float]
+    latest: Optional[DashboardLatest]
+    sample_count: int
+    usage: DashboardUsage
+    water_levels: List[DashboardWaterLevel]
+    pump_state_summary: DashboardPumpStateSummary
+    leak_events: int
