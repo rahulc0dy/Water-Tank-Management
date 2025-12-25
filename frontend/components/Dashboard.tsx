@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { DashboardMetrics, TelemetrySample } from "../lib/api";
+import { ReportIssueBox, ViewIssues } from "./Issues";
+import { loadUserType, UserType } from "./LoginCard";
 
 export interface DashboardProps {
   metrics: DashboardMetrics | null;
@@ -104,6 +106,12 @@ export default function Dashboard({
   onRefresh,
   loading = false,
 }: DashboardProps) {
+  const [userType, setUserType] = useState<UserType>("user");
+
+  useEffect(() => {
+    setUserType(loadUserType());
+  }, []);
+
   const latest = metrics?.latest ?? null;
   const waterTrend = useMemo(
     () =>
@@ -132,7 +140,7 @@ export default function Dashboard({
           </button>
           <button
             onClick={onLogout}
-            className="rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100">
+            className="rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:cursor-pointer">
             Sign out
           </button>
         </div>
@@ -309,6 +317,12 @@ export default function Dashboard({
           </table>
         </div>
       </section>
+
+      {userType === "admin" ? (
+        <ViewIssues />
+      ) : (
+        <ReportIssueBox username={username} />
+      )}
     </div>
   );
 }
