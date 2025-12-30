@@ -5,3 +5,7 @@ matplotlib
 numpy
 joblib
 pyserial
+fastapi
+uvicorn
+sqlalchemy
+passlib
