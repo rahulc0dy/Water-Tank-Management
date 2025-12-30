@@ -2,9 +2,32 @@
 
 import { FormEvent, useState } from "react";
 
+export type UserType = "user" | "admin";
+
+const USER_TYPE_STORAGE_KEY = "water_tank_user_type";
+
+export function saveUserType(userType: UserType): void {
+  localStorage.setItem(USER_TYPE_STORAGE_KEY, userType);
+}
+
+export function loadUserType(): UserType {
+  if (typeof window === "undefined") return "user";
+  const stored = localStorage.getItem(USER_TYPE_STORAGE_KEY);
+  if (stored === "admin" || stored === "user") return stored;
+  return "user";
+}
+
 export interface LoginCardProps {
-  onSubmit: (username: string, password: string) => Promise<void> | void;
-  onRegister?: (username: string, password: string) => Promise<void> | void;
+  onSubmit: (
+    username: string,
+    password: string,
+    userType: UserType
+  ) => Promise<void> | void;
+  onRegister?: (
+    username: string,
+    password: string,
+    userType: UserType
+  ) => Promise<void> | void;
   loading?: boolean;
   error?: string | null;
   info?: string | null;
@@ -20,6 +43,7 @@ export function LoginCard({
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"login" | "register">("login");
+  const [userType, setUserType] = useState<UserType>("user");
 
   const isRegister = mode === "register";
 
@@ -28,10 +52,11 @@ export function LoginCard({
     if (!username || !password) {
       return;
     }
+    saveUserType(userType);
     if (isRegister && onRegister) {
-      await onRegister(username, password);
+      await onRegister(username, password, userType);
     } else {
-      await onSubmit(username, password);
+      await onSubmit(username, password, userType);
     }
   }
 
@@ -86,6 +111,35 @@ export function LoginCard({
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
+        </div>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-zinc-700">
+            User Type
+          </label>
+          <div className="flex gap-4">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="userType"
+                value="user"
+                checked={userType === "user"}
+                onChange={() => setUserType("user")}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm text-zinc-700">User</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="radio"
+                name="userType"
+                value="admin"
+                checked={userType === "admin"}
+                onChange={() => setUserType("admin")}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-sm text-zinc-700">Admin</span>
+            </label>
+          </div>
         </div>
         {error ? (
           <p className="text-sm text-red-600" role="alert">

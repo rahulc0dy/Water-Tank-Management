@@ -15,7 +15,9 @@ import {
   login,
   persistCredentials,
   register,
-} from "../lib/api";
+} from "@/lib/api";
+import { ReportIssueBox, ViewIssues } from "@/components/Issues";
+import { UserType } from "@/components/LoginCard";
 
 const REFRESH_INTERVAL_MS = 5_000;
 
@@ -35,6 +37,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [userType, setUserType] = useState<"user" | "admin">("user");
 
   useEffect(() => {
     setCreds(loadCredentials());
@@ -98,7 +101,7 @@ export default function Home() {
   );
 
   const handleLogin = useCallback(
-    async (username: string, password: string) => {
+    async (username: string, password: string, userType: UserType) => {
       setLoading(true);
       setError(null);
       setInfo(null);
@@ -118,7 +121,7 @@ export default function Home() {
   );
 
   const handleRegister = useCallback(
-    async (username: string, password: string) => {
+    async (username: string, password: string, userType: UserType) => {
       setLoading(true);
       setError(null);
       setInfo(null);
